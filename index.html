@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{
+				padding: 0;
+				margin: 0;
+			}
+			li{
+				list-style: none;
+			}
+			body{
+				background: #CCCCCC;
+			}
+			#box{
+				width: 400px;
+				margin: 50px auto;
+				height: 426px;
+				overflow: hidden;
+				border: 1px solid yellow;
+			}
+			#top{
+				position: relative;
+				height: 320px;
+				
+			}
+			#top li{
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+			#left{
+				position: absolute;
+				width: 200px;
+				top: 0;
+				left: 0;
+				height: 320px;
+				z-index: 1000;
+			}
+			#right{
+				position: absolute;
+				width: 200px;
+				height: 320px;
+				top: 0;
+				right: 0;
+				z-index: 1000;
+			}
+			#btn_l{
+				position: absolute;
+				background: url(img/btn.gif) no-repeat;
+				height: 60px;
+				width: 60px;
+				left: 10px;
+				top: 130px;
+				z-index: 1001;
+				opacity: 0;
+				filter: alpha(opacity=0);
+			}
+			#btn_r{
+				position: absolute;
+				background: url(img/btn.gif) no-repeat 0 -60px;
+				height: 60px;
+				width: 60px;
+				right: 10px;
+				top: 130px;
+				z-index: 1001;
+				opacity: 0;
+				filter: alpha(opacity=0);
+			}
+			#bottom{
+				position: relative;
+				
+			}
+			#small_ul{
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+			#small_ul li{
+				float: left;
+			}
+			#small_ul img{
+				height: 90px;
+				width: 120px;
+				padding: 6px;
+			}
+		</style>
+		
+	</head>
+	<body>
+		<div id="box">
+			<ul id="top">
+				<div id="left"></div>
+				<div id="right"></div>
+				<a href="javascript:;" id="btn_l"></a>
+				<a href="javascript:;" id="btn_r"></a>
+				<li style="z-index: 1 ";><img src="img/1.jpg" /></li>
+				<li><img src="img/2.jpg"/></li>
+				<li><img src="img/3.jpg"/></li>
+				<li><img src="img/4.jpg"/></li>
+				<li><img src="img/5.jpg"/></li>
+				<li><img src="img/6.jpg"/></li>
+			</ul>
+			<div id="bottom">
+				<ul id="small_ul">
+					<li><img src="img/1.jpg"/></li>
+					<li><img src="img/2.jpg"/></li>
+					<li><img src="img/3.jpg"/></li>
+					<li><img src="img/4.jpg"/></li>
+					<li><img src="img/5.jpg"/></li>
+					<li><img src="img/6.jpg"/></li>
+				</ul>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="js/sport.js" ></script>
+	<script type="text/javascript">
+		//获取左右遮罩
+		let leftMark = document.getElementById("left");
+		let rightMark = document.getElementById("right");
+		//获取左右按钮
+		let btnL = document.getElementById("btn_l");
+		let btnR = document.getElementById("btn_r");
+		
+		//获取所有的大图
+		let bigPic = document.getElementById("top").getElementsByTagName("li");
+		//获取所有的小图
+		let smallPic = document.getElementById("bottom").getElementsByTagName("li");
+		//获取小图所在的ul
+		let smallUl = document.getElementById("small_ul");
+		//获取大盒子
+		let oBox = document.getElementById("box");
+		//设置小图ul的宽度
+		smallUl.style.width = smallPic[0].offsetWidth * smallPic.length + "px";
+		
+		//给左遮罩和左按钮添加移入事件
+		leftMark.onmouseover = btnL.onmouseover = function(){
+			sport(btnL,{opacity : 100});
+		}
+		//给左遮罩和左按钮添加移出事件
+		leftMark.onmouseout = btnL.onmouseout = function(){
+			sport(btnL,{opacity : 0});
+		}
+		//给右遮罩和右按钮添加移入事件
+		rightMark.onmouseover = btnR.onmouseover = function(){
+			sport(btnR,{opacity : 100});
+		}
+		//给右遮罩和右按钮添加移出事件
+		rightMark.onmouseout = btnR.onmouseout = function(){
+			sport(btnR,{opacity : 0});
+		}
+		let nowPic = 0; //记录当前显示图片的下标
+		let zIndex = 1; //记录层级
+		let timer = null;
+		init();
+		aotoPlay()
+		//给左按钮添加点击事件
+		btnL.onclick = function(){
+			nowPic --;
+			if(nowPic < 0){
+				nowPic = smallPic.length - 1;
+			}
+			init();
+		}
+		//给右按钮添加点击事件
+		btnR.onclick = function(){
+			nowPic ++;
+			if(nowPic > smallPic.length - 1){
+				nowPic = 0;
+			}
+			init();
+		}
+		//给所有小图添加事件
+		for(var i = 0;i < smallPic.length;i ++){
+			//记录每一个小图的下标
+			smallPic[i].index = i;
+			//给每一个小图添加移入事件
+			smallPic[i].onmouseover = function(){
+				sport(this,{opacity : 100});
+			}
+			//给每一个小图添加移出事件
+			smallPic[i].onmouseout = function(){
+				if(this.index != nowPic){
+					sport(this,{opacity : 50});
+				}
+			}
+			//给每一个小图添加点击事件
+			smallPic[i].onclick = function(){
+				nowPic = this.index;
+				init();
+			}
+		}
+		//封装一个函数，让图片轮播起来
+		function init(){
+			//控制大图轮播
+			bigPic[nowPic].style["z-index"] = ++ zIndex;
+			//小图轮播
+			if(nowPic == 0){
+				sport(smallUl,{left : 0});
+			}else if(nowPic == smallPic.length - 1){
+				sport(smallUl,{left : -(smallPic[0].offsetWidth) * (smallPic.length - 3)});
+			}else{
+				sport(smallUl,{left : -(nowPic - 1) * smallPic[0].offsetWidth});
+			}
+			//初始化小图的透明度
+			for(let i = 0;i < smallPic.length;i ++){
+				sport(smallPic[i],{opacity : 50});
+			}
+			//当前图片不透明
+			sport(smallPic[nowPic],{opacity : 100});
+		}
+		function aotoPlay(){
+			timer = setInterval(function(){
+				nowPic ++;
+				if(nowPic > smallPic.length - 1){
+					nowPic = 0;
+				}
+				init();
+			},3000)
+		}
+		//给大盒子添加移入移出事件
+		oBox.onmouseover = function(){
+			clearInterval(timer);
+		}
+		oBox.onmouseout = function(){
+			aotoPlay();
+		}
+	</script>
+</html>
